@@ -1,0 +1,14 @@
+{
+  "name": "每日德語",
+  "short_name": "每日德語",
+  "description": "用你自己的單字表學德文：每日單字、單字卡、間隔複習與測驗",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1f2937",
+  "theme_color": "#1f2937",
+  "lang": "zh-Hant",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
