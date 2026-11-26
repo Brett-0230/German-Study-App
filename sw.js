@@ -1,6 +1,6 @@
 // 離線快取：先用網路，失敗時用快取（更新單字表後重新整理即可取得新版）
-const CACHE = "gsa-v1";
-const ASSETS = ["./", "index.html", "styles.css", "app.js", "data/vocab.js", "manifest.json", "icons/icon.svg"];
+const CACHE = "gsa-v2";
+const ASSETS = ["./", "index.html", "styles.css", "app.js", "data/vocab.js", "manifest.json", "icons/icon.svg", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
 });

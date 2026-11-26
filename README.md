@@ -61,6 +61,24 @@ python3 -m http.server 8000
 
 也可以直接開 `index.html`（離線快取功能需透過 http 伺服器），或部署到 GitHub Pages。
 
+## 在 iPhone / iPad 上使用
+
+iPhone 不能直接開電腦上的檔案，需要先把 App 放到網路上（免費的 GitHub Pages 即可）：
+
+1. 在 GitHub 專案頁面點 **Settings → Pages**。
+2. **Source** 選 `Deploy from a branch`，Branch 選放有這些檔案的分支（例如 `main`）和 `/ (root)`，按 **Save**。
+3. 約 1 分鐘後會出現網址，例如 `https://你的帳號.github.io/German-Study-App/`。
+4. 用 iPhone 的 **Safari** 打開這個網址（必須是 Safari）。
+5. 點下方的 **分享按鈕 ⬆️ → 加入主畫面**，主畫面就會出現「每日德語」圖示，之後像 App 一樣全螢幕開啟，也可離線使用。
+
+> 注意：免費帳號的 GitHub Pages 只支援 **公開（Public）** 的專案。
+
+iPhone 小提醒：
+- 第一次發音前需要先點一下畫面（iOS 的規定），之後就會自動播放。
+- 若聽不到聲音，請確認手機側邊的**靜音開關**沒有開啟。
+- 想要更自然的德語發音：設定 → 輔助使用 → 朗讀內容 → 聲音 → 德文，下載「Anna（加強版）」。
+- 「加入主畫面」的 App 與 Safari 的學習紀錄是分開的；備份檔可透過分享選單存到「檔案」App。
+
 ## 檔案結構
 
 ```

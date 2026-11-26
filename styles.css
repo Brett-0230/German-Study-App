@@ -45,7 +45,10 @@ body {
   min-height: 100vh;
   padding-bottom: calc(72px + env(safe-area-inset-bottom));
   -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
 }
+.btn, .option, .chip, .tabbar button, .icon-btn { touch-action: manipulation; }
 button, input, select, textarea { font: inherit; color: inherit; }
 
 .topbar {
@@ -139,7 +142,9 @@ main { max-width: 640px; margin: 0 auto; padding: 16px; }
 input[type=text], input[type=search], input[type=number], select, textarea {
   width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg);
 }
-textarea { min-height: 160px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .85rem; }
+textarea { min-height: 160px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+/* iPhone：輸入框字體小於 16px 時 Safari 會自動放大畫面 */
+input[type=text], input[type=search], input[type=number], select, textarea { font-size: 16px; }
 .feedback { margin-top: 12px; padding: 10px 12px; border-radius: 10px; }
 .feedback.ok { background: var(--good-soft); }
 .feedback.no { background: var(--bad-soft); }

@@ -197,10 +197,20 @@
     deVoice = vs.find((v) => /de[-_]DE/i.test(v.lang) && /google|premium|enhanced|anna|helena/i.test(v.name)) ||
       vs.find((v) => /^de/i.test(v.lang)) || null;
   }
-  if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+  if ("speechSynthesis" in window) {
+    pickVoice(); speechSynthesis.onvoiceschanged = pickVoice;
+    // iPhone / iPad：語音必須先由使用者點擊「解鎖」，之後才能自動播放
+    const unlock = () => {
+      try { const u = new SpeechSynthesisUtterance(" "); u.volume = 0; u.lang = "de-DE"; speechSynthesis.speak(u); } catch {}
+      if (!deVoice) pickVoice();
+      document.removeEventListener("touchend", unlock); document.removeEventListener("click", unlock);
+    };
+    document.addEventListener("touchend", unlock, { once: true }); document.addEventListener("click", unlock, { once: true });
+  }
   function speak(text) {
     if (!("speechSynthesis" in window)) { toast("此瀏覽器不支援語音"); return; }
     speechSynthesis.cancel();
+    if (speechSynthesis.paused) speechSynthesis.resume();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "de-DE"; u.rate = settings.rate;
     if (deVoice) u.voice = deVoice;
@@ -722,7 +732,14 @@ gehen	走；去	Wir gehen nach Hause.	我們回家。"></textarea>
     const sl = $("#sLevel"); if (sl) sl.onchange = (e) => { settings.filterLevel = e.target.value; save(KEY.settings, settings); session = null; };
     $("#testVoice").onclick = () => speak("Guten Morgen! Wie geht es dir?");
 
-    const download = (name, text, type) => {
+    const download = async (name, text, type) => {
+      // iPhone：用分享選單存到「檔案」App 比較方便
+      try {
+        const file = new File([text], name, { type });
+        if (navigator.canShare && navigator.canShare({ files: [file] }) && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
+          await navigator.share({ files: [file], title: name }); return;
+        }
+      } catch (e) { if (e && e.name === "AbortError") return; }
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
