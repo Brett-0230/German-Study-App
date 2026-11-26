@@ -189,7 +189,14 @@
   function renderStreak() { $("#streak").textContent = `🔥 ${streak()}`; }
   const todayStats = () => stats.days[today()] || { learned: 0, reviewed: 0, quiz: 0, correct: 0 };
 
-  // ---------- 發音 (Web Speech API) ----------
+  // ---------- iOS App（Capacitor）原生功能 ----------
+  const Cap = window.Capacitor;
+  const isNative = !!(Cap && Cap.isNativePlatform && Cap.isNativePlatform());
+  const plugin = (name) => (isNative ? (Cap.Plugins && Cap.Plugins[name]) || (Cap.registerPlugin && Cap.registerPlugin(name)) : null);
+  const NativeTTS = plugin("TextToSpeech");
+  if (isNative) document.documentElement.classList.add("native");
+
+  // ---------- 發音（App：iOS 原生語音；網頁：Web Speech API） ----------
   let deVoice = null;
   function pickVoice() {
     if (!("speechSynthesis" in window)) return;
@@ -197,7 +204,7 @@
     deVoice = vs.find((v) => /de[-_]DE/i.test(v.lang) && /google|premium|enhanced|anna|helena/i.test(v.name)) ||
       vs.find((v) => /^de/i.test(v.lang)) || null;
   }
-  if ("speechSynthesis" in window) {
+  if (!NativeTTS && "speechSynthesis" in window) {
     pickVoice(); speechSynthesis.onvoiceschanged = pickVoice;
     // iPhone / iPad：語音必須先由使用者點擊「解鎖」，之後才能自動播放
     const unlock = () => {
@@ -208,6 +215,13 @@
     document.addEventListener("touchend", unlock, { once: true }); document.addEventListener("click", unlock, { once: true });
   }
   function speak(text) {
+    if (NativeTTS) {
+      // category "playback"：即使手機切到靜音也會發音
+      NativeTTS.stop().catch(() => {}).then(() =>
+        NativeTTS.speak({ text, lang: "de-DE", rate: settings.rate, pitch: 1, volume: 1, category: "playback" })
+      ).catch(() => toast("無法播放語音，請到 設定 → 輔助使用 → 朗讀內容 下載德文語音"));
+      return;
+    }
     if (!("speechSynthesis" in window)) { toast("此瀏覽器不支援語音"); return; }
     speechSynthesis.cancel();
     if (speechSynthesis.paused) speechSynthesis.resume();
@@ -287,7 +301,8 @@
   function go(tab) {
     currentTab = tab;
     $$(".tabbar button").forEach((b) => b.classList.toggle("active", b.dataset.tab === tab));
-    if ("speechSynthesis" in window) speechSynthesis.cancel();
+    if (NativeTTS) NativeTTS.stop().catch(() => {});
+    else if ("speechSynthesis" in window) speechSynthesis.cancel();
     views[tab]();
     window.scrollTo(0, 0);
   }
@@ -687,7 +702,7 @@ gehen	走；去	Wir gehen nach Hause.	我們回家。"></textarea>
       </div>
 
       <div class="card"><h2>💾 資料</h2>
-        <p class="muted">目前共有 ${vocab.length} 個單字。學習紀錄只存在這台裝置的瀏覽器中，換裝置前請先匯出備份。</p>
+        <p class="muted">目前共有 ${vocab.length} 個單字。學習紀錄只存在這台裝置上，換裝置前請先匯出備份。</p>
         <div class="row">
           <button class="btn" id="exportCsv">匯出單字表 (CSV)</button>
           <button class="btn" id="exportBackup">備份學習紀錄</button>
@@ -733,6 +748,13 @@ gehen	走；去	Wir gehen nach Hause.	我們回家。"></textarea>
     $("#testVoice").onclick = () => speak("Guten Morgen! Wie geht es dir?");
 
     const download = async (name, text, type) => {
+      if (isNative) { // App：寫入暫存檔後用分享選單存到「檔案」或傳給其他 App
+        try {
+          const { uri } = await plugin("Filesystem").writeFile({ path: name, data: text, directory: "CACHE", encoding: "utf8" });
+          await plugin("Share").share({ title: name, files: [uri] });
+        } catch (e) { if (!/cancel/i.test(String(e && e.message))) toast("匯出失敗：" + (e && e.message || e)); }
+        return;
+      }
       // iPhone：用分享選單存到「檔案」App 比較方便
       try {
         const file = new File([text], name, { type });
@@ -789,7 +811,7 @@ gehen	走；去	Wir gehen nach Hause.	我們回家。"></textarea>
   // 初始化
   renderStreak();
   go("home");
-  if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  if (!isNative && "serviceWorker" in navigator && location.protocol !== "file:") {
     navigator.serviceWorker.register("sw.js").catch(() => {});
   }
 

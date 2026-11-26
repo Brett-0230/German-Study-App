@@ -1,0 +1,9 @@
+{
+  "appId": "com.germanstudy.dailydeutsch",
+  "appName": "每日德語",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#1f2937"
+  }
+}

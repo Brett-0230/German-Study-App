@@ -79,6 +79,36 @@ iPhone 小提醒：
 - 想要更自然的德語發音：設定 → 輔助使用 → 朗讀內容 → 聲音 → 德文，下載「Anna（加強版）」。
 - 「加入主畫面」的 App 與 Safari 的學習紀錄是分開的；備份檔可透過分享選單存到「檔案」App。
 
+## iOS App 版（Xcode 專案）
+
+`ios/` 資料夾是用 [Capacitor](https://capacitorjs.com) 包成的原生 iOS App，與網頁版共用同一份程式碼，另外加上：
+- iOS 原生德語發音（手機切靜音也能發音）
+- 匯出 / 備份走 iOS 分享選單，可存到「檔案」或傳 LINE、AirDrop
+- 自訂 App 圖示與啟動畫面、直向鎖定
+
+### 安裝到自己的 iPhone（需要一台 Mac）
+
+1. 在 Mac 上安裝 **Xcode**（App Store 免費）與 **Node.js**（https://nodejs.org ，選 LTS）。
+2. 下載這個專案，在「終端機」進入資料夾後執行：
+   ```bash
+   npm install
+   npm run ios:sync
+   npm run ios:open      # 會用 Xcode 打開專案
+   ```
+3. 在 Xcode：左側點 **App** → **Signing & Capabilities** → Team 選你的 Apple ID（沒有就按 *Add an Account* 登入，免費即可）。
+   若出現 Bundle Identifier 已被使用，把 `com.germanstudy.dailydeutsch` 改成獨一無二的名稱，例如加上你的名字。
+4. 用傳輸線把 iPhone 接上 Mac，上方選擇你的 iPhone，按 ▶️ 執行。
+5. 第一次需要在 iPhone：**設定 → 一般 → VPN 與裝置管理** → 信任你的開發者帳號；iOS 16 以上另需開啟 **設定 → 隱私權與安全性 → 開發者模式**。
+
+> 免費 Apple ID 安裝的 App **7 天後會失效**，需要重新用 Xcode 安裝一次（學習紀錄不會消失）。
+> 加入 Apple Developer Program（每年 US$99）後可長期使用，也能透過 TestFlight 或 App Store 發佈。
+
+### 修改後更新 App
+
+改了網頁檔案或 `data/vocab.js` 單字表後，執行 `npm run ios:sync`，再在 Xcode 按 ▶️ 即可。
+
+GitHub Actions（`.github/workflows/ios.yml`）會在每次推送時自動編譯一次 iOS 版本，確認專案能成功建置。
+
 ## 檔案結構
 
 ```
@@ -88,6 +118,8 @@ app.js          所有功能邏輯
 data/vocab.js   預設單字表（換成你的）
 sw.js           離線快取
 manifest.json   PWA 設定
+ios/            iOS App（Xcode 專案）
+capacitor.config.json  iOS App 設定（App 名稱、Bundle ID）
 ```
 
 學習紀錄存在瀏覽器的 localStorage，換裝置前請先在「設定 → 備份學習紀錄」匯出。
